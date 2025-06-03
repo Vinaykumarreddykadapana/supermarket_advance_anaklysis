@@ -97,3 +97,110 @@ SELECT o.OrderID, o.OrderDate, c.CustomerName, c.Region,
 FROM Orders o
 JOIN Customers c ON o.CustomerID = c.CustomerID
 JOIN Products p ON o.ProductID = p.ProductID;
+
+
+
+--- 5. Profitability Analysis by Product Category
+SELECT 
+    Category,
+    Sub_Category,
+    SUM(Sales) AS Total_Sales,
+    SUM(Profit) AS Total_Profit,
+    (SUM(Profit)/SUM(Sales)) AS Profit_Margin,
+    COUNT(DISTINCT Product_ID) AS Unique_Products,
+    SUM(Quantity) AS Total_Units_Sold
+FROM 
+    Superstore
+GROUP BY 
+    Category, Sub_Category
+ORDER BY 
+    Profit_Margin DESC;
+
+---6. Customer Segmentation by Profitability
+WITH CustomerStats AS (
+    SELECT 
+        Customer_ID,
+        Customer_Name,
+        Segment,
+        SUM(Sales) AS Total_Sales,
+        SUM(Profit) AS Total_Profit,
+        COUNT(DISTINCT Order_ID) AS Order_Count,
+        SUM(Quantity) AS Total_Items_Purchased
+    FROM 
+        Superstore
+    GROUP BY 
+        Customer_ID, Customer_Name, Segment
+)
+SELECT 
+    *,
+    CASE 
+        WHEN Total_Profit > 1000 THEN 'High Value'
+        WHEN Total_Profit > 500 THEN 'Medium Value'
+        WHEN Total_Profit > 0 THEN 'Low Value'
+        ELSE 'Negative Value'
+    END AS Customer_Value_Segment
+FROM 
+    CustomerStats
+ORDER BY 
+    Total_Profit DESC;
+
+---7. Regional Performance Analysis
+SELECT 
+    Region,
+    State,
+    SUM(Sales) AS Total_Sales,
+    SUM(Profit) AS Total_Profit,
+    (SUM(Profit)/SUM(Sales)) AS Profit_Margin,
+    COUNT(DISTINCT Customer_ID) AS Unique_Customers,
+    COUNT(DISTINCT Order_ID) AS Order_Count
+FROM 
+    Superstore
+GROUP BY 
+    Region, State
+ORDER BY 
+    Region, Profit_Margin DESC;
+
+---8. SELECT 
+    Region,
+    State,
+    SUM(Sales) AS Total_Sales,
+    SUM(Profit) AS Total_Profit,
+    (SUM(Profit)/SUM(Sales)) AS Profit_Margin,
+    COUNT(DISTINCT Customer_ID) AS Unique_Customers,
+    COUNT(DISTINCT Order_ID) AS Order_Count
+FROM 
+    Superstore
+GROUP BY 
+    Region, State
+ORDER BY 
+    Region, Profit_Margin DESC;
+
+--9. Shipping Mode Efficiency Analysis
+SELECT 
+    Ship_Mode,
+    AVG(DATEDIFF(day, Order_Date, Ship_Date)) AS Avg_Shipping_Time,
+    SUM(Sales) AS Total_Sales,
+    SUM(Profit) AS Total_Profit,
+    (SUM(Profit)/SUM(Sales)) AS Profit_Margin,
+    COUNT(*) AS Order_Count
+FROM 
+    Superstore
+GROUP BY 
+    Ship_Mode
+ORDER BY 
+    Avg_Shipping_Time;
+
+--10.Time Series Sales Analysis with Seasonality
+SELECT 
+    YEAR(Order_Date) AS Year,
+    MONTH(Order_Date) AS Month,
+    SUM(Sales) AS Monthly_Sales,
+    SUM(Profit) AS Monthly_Profit,
+    COUNT(DISTINCT Order_ID) AS Order_Count,
+    SUM(Quantity) AS Total_Units_Sold
+FROM 
+    Superstore
+GROUP BY 
+    YEAR(Order_Date), MONTH(Order_Date)
+ORDER BY 
+    Year, Month;
